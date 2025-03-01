@@ -32,6 +32,8 @@ export function loadEnvConfig() {
     "JWT_ACCESS_EXPIRATION",
     "JWT_REFRESH_EXPIRATION",
     "SALT_ROUNDS",
+    "COOKIE_SECRET",
+    "PASSWORD_PEPPER",
   ];
 
   const missingEnvVars = requiredEnvVars.filter((env) => !process.env[env]);

@@ -1,4 +1,5 @@
 import { AuthRepository } from "../data-access/auth.repository";
+import { UserRepository } from "../../user/data-access/user.repository";
 import { JwtService } from "../../../shared/infraestructure/security/jwt.service";
 import { PasswordService } from "../../../shared/infraestructure/security/password.service";
 import { AuthResponse, CreateUserDto, Login } from "./auth.dto";
@@ -7,15 +8,17 @@ export class AuthService {
   private authRepository: AuthRepository;
   private passwordService: PasswordService;
   private jwtService: JwtService;
+  private userRepository: UserRepository;
 
   constructor() {
     this.authRepository = new AuthRepository();
+    this.userRepository = new UserRepository();
     this.passwordService = new PasswordService();
     this.jwtService = new JwtService();
   }
 
   async register(userData: CreateUserDto): Promise<AuthResponse> {
-    const existingUser = await this.authRepository.findByEmailOrUsername(
+    const existingUser = await this.userRepository.findByEmailOrUsername(
       userData.email,
       userData.username
     );
@@ -28,14 +31,14 @@ export class AuthService {
 
     const passwordHash = await this.passwordService.hash(userData.password);
 
-    const user = await this.authRepository.createUser({
+    const user = await this.userRepository.createUser({
       ...userData,
       password: passwordHash,
     });
 
     const tokens = await this.jwtService.generateTokens(user);
 
-    await this.authRepository.updateLastLogin(user.id);
+    await this.userRepository.update(user.id, { lastLoginAt: new Date() });
 
     const { passwordHash: _, ...userWithoutPassword } = user;
 
@@ -46,7 +49,10 @@ export class AuthService {
   }
 
   async login(loginData: Login): Promise<AuthResponse> {
-    const user = await this.authRepository.findByUsername(loginData.username);
+    const user = await this.userRepository.findBy({
+      username: loginData.username,
+    });
+
     if (!user) {
       throw new Error("Invalid credentials");
     }
@@ -66,7 +72,7 @@ export class AuthService {
 
     const tokens = await this.jwtService.generateTokens(user);
 
-    await this.authRepository.updateLastLogin(user.id);
+    await this.userRepository.update(user.id, { lastLoginAt: new Date() });
 
     const { passwordHash: _, ...userWithoutPassword } = user;
 

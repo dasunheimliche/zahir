@@ -3,6 +3,7 @@ import { PrismaClient, User } from "@prisma/client";
 import crypto from "crypto";
 import type { StringValue } from "ms";
 import { AppConfig, config } from "../config/config";
+import { AuthRepository } from "../../../components/auth/data-access/auth.repository";
 
 interface TokenPayload {
   userId: string;
@@ -12,11 +13,11 @@ interface TokenPayload {
 
 export class JwtService {
   private config: AppConfig;
-  private prisma: PrismaClient;
+  private authRepository: AuthRepository;
 
   constructor() {
-    this.prisma = new PrismaClient();
     this.config = config;
+    this.authRepository = new AuthRepository();
   }
 
   async generateTokens(user: User) {
@@ -34,13 +35,11 @@ export class JwtService {
     const refreshTokenExpiration = new Date();
     refreshTokenExpiration.setDate(refreshTokenExpiration.getDate() + 7); // 7 días
 
-    await this.prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        userId: user.id,
-        expiresAt: refreshTokenExpiration,
-      },
-    });
+    await this.authRepository.saveRefreshToken(
+      user.id,
+      refreshToken,
+      refreshTokenExpiration
+    );
 
     return {
       accessToken,
@@ -62,10 +61,9 @@ export class JwtService {
   }
 
   async refreshAccessToken(refreshToken: string) {
-    const tokenDoc = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
-      include: { user: true },
-    });
+    const tokenDoc = await this.authRepository.findRefreshTokenByToken(
+      refreshToken
+    );
 
     if (!tokenDoc || tokenDoc.isRevoked || tokenDoc.expiresAt < new Date()) {
       throw new Error("Invalid refresh token");
@@ -88,16 +86,10 @@ export class JwtService {
   }
 
   async revokeRefreshToken(token: string) {
-    await this.prisma.refreshToken.update({
-      where: { token },
-      data: { isRevoked: true },
-    });
+    await this.authRepository.revokeRefreshToken(token);
   }
 
   async revokeAllUserTokens(userId: string) {
-    await this.prisma.refreshToken.updateMany({
-      where: { userId },
-      data: { isRevoked: true },
-    });
+    await this.authRepository.revokeAllUserRefreshTokens(userId);
   }
 }

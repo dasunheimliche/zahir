@@ -1,5 +1,5 @@
 import { IsString, IsEmail, IsNotEmpty, MinLength } from "class-validator";
-import { UserRole } from "@prisma/client";
+import { UserRole, User } from "@prisma/client";
 import { FromDto } from "../../../shared/types/main";
 
 export class CreateUserDto {

@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import { config } from "./shared/infraestructure/config/config";
 import { prismaService } from "./shared/infraestructure/config/prisma.config";
 import authRoutes from "./components/auth/entry-points/api/auth.routes";
@@ -32,6 +33,7 @@ export class App {
 
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(cookieParser(config.security.cookieSecret));
 
     if (config.isDevelopment) {
       this.app.use(morgan("dev"));

@@ -11,6 +11,7 @@ export interface JwtConfig {
 
 export interface SecurityConfig {
   saltRounds: number;
+  cookieSecret: string;
 }
 
 export interface AppConfig {
@@ -46,6 +47,7 @@ export class Config {
 
       security: {
         saltRounds: parseInt(process.env.SALT_ROUNDS || "10", 10),
+        cookieSecret: process.env.COOKIE_SECRET || "default-cookie-secret",
       },
     };
 
