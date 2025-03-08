@@ -14,11 +14,20 @@ export interface SecurityConfig {
   cookieSecret: string;
 }
 
+export interface StorageConfig {
+  imagekit: {
+    publicKey: string;
+    privateKey: string;
+    urlEndpoint: string;
+  };
+}
+
 export interface AppConfig {
   port: number;
   isDevelopment: boolean;
   isProduction: boolean;
   database: DatabaseConfig;
+  storage: StorageConfig;
   jwt: JwtConfig;
   security: SecurityConfig;
 }
@@ -35,6 +44,14 @@ export class Config {
 
       database: {
         url: process.env.DATABASE_URL || "mongodb://localhost:27017/mydb",
+      },
+
+      storage: {
+        imagekit: {
+          publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
+          privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
+          urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || "",
+        },
       },
 
       jwt: {
