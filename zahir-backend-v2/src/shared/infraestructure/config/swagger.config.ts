@@ -4,6 +4,11 @@ import {
   AuthSchemas,
 } from "../../../components/auth/domain/auth.swagger";
 
+import {
+  PostPaths,
+  PostSchemas,
+} from "../../../components/post/domain/post.swagger";
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
@@ -21,10 +26,12 @@ const options: swaggerJsdoc.Options = {
     components: {
       schemas: {
         ...AuthSchemas,
+        ...PostSchemas,
       },
     },
     paths: {
       ...AuthPaths,
+      ...PostPaths,
     },
   },
   apis: [],

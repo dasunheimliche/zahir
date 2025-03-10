@@ -1,3 +1,5 @@
+import { loadEnvConfig } from "./env.config";
+
 export interface DatabaseConfig {
   url: string;
 }
@@ -37,6 +39,8 @@ export class Config {
   private config: AppConfig;
 
   private constructor() {
+    loadEnvConfig();
+
     this.config = {
       port: parseInt(process.env.PORT || "3000", 10),
       isDevelopment: process.env.NODE_ENV === "development",

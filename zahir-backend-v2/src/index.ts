@@ -1,8 +1,5 @@
 import { App } from "./app";
-import { loadEnvConfig } from "./shared/infraestructure/config/env.config";
 import { prismaService } from "./shared/infraestructure/config/prisma.config";
-
-loadEnvConfig();
 
 let server: App;
 

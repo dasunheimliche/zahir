@@ -34,6 +34,9 @@ export function loadEnvConfig() {
     "SALT_ROUNDS",
     "COOKIE_SECRET",
     "PASSWORD_PEPPER",
+    "IMAGEKIT_URL_ENDPOINT",
+    "IMAGEKIT_PUBLIC_KEY",
+    "IMAGEKIT_PRIVATE_KEY",
   ];
 
   const missingEnvVars = requiredEnvVars.filter((env) => !process.env[env]);

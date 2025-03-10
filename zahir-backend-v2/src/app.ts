@@ -5,9 +5,13 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { config } from "./shared/infraestructure/config/config";
 import { prismaService } from "./shared/infraestructure/config/prisma.config";
+
 import authRoutes from "./components/auth/entry-points/api/auth.routes";
+import postRoutes from "./components/post/entry-point/post.routes";
+
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./shared/infraestructure/config/swagger.config";
+import fileUpload from "express-fileupload";
 
 export class App {
   private app: Application;
@@ -31,7 +35,17 @@ export class App {
       })
     );
 
-    this.app.use(express.json());
+    this.app.use(
+      fileUpload({
+        limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max file size
+        abortOnLimit: true,
+        useTempFiles: false,
+        createParentPath: true,
+        debug: config.isDevelopment,
+      })
+    );
+
+    this.app.use(express.json({ limit: "5mb" }));
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser(config.security.cookieSecret));
 
@@ -46,6 +60,7 @@ export class App {
 
   private setupRoutes(): void {
     this.app.use("/api/auth", authRoutes);
+    this.app.use("/api/posts", postRoutes);
     this.app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
   }
 
